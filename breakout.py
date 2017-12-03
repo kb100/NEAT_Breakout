@@ -1,0 +1,241 @@
+import pygame
+import sys
+import numpy as np
+import neat
+
+class Breakout:
+    def __init__(self, genome=None, config=None, gui=True):
+        self.net = None
+        self.netLayersMap = None
+        self.genome = genome
+        self.config = config
+        if genome is not None and config is not None:
+            self.net = neat.nn.FeedForwardNetwork.create(genome, config)
+            self.netLayersMap = self.getNetLayersMap()
+        self.gui = gui
+        if self.gui:
+            self.screen = pygame.display.set_mode((800, 600))
+        self.blocks = []
+        self.paddle = [[pygame.Rect(300, 500, 20, 10), 120],
+                [pygame.Rect(320, 500, 20, 10),100],
+                [pygame.Rect(340, 500, 20, 10),80],
+                [pygame.Rect(360, 500, 20, 10),45],
+        ]
+        self.ball = pygame.Rect(300, 490, 5, 5)
+        self.speeds = {
+            120:(-10, -3),
+            100:(-10, -8),
+            80:(10, -8),
+            45:(10, -3),
+        }
+        self.swap = {
+            120:45,
+            45:120,
+            100:80,
+            80:100,
+        }
+        if self.gui:
+            pygame.font.init()
+            self.font = pygame.font.SysFont("Arial", 25)
+
+    def newGame(self):
+        self.score = 0
+        self.gameOver = False
+        self.createBlocks()
+        self.ball.x = 300
+        self.ball.y = 490
+        self.direction = -1
+        self.yDirection = -1
+        self.angle = 80
+        self.l = 0
+        self.r = 0
+
+    def createBlocks(self):
+        self.blocks = []
+        self.blocksMap = {}
+        y = 50
+        for __ in range(200 // 10):
+            x = 50
+            for _ in range(800 // 25 - 6):
+                block = pygame.Rect(x, y, 25, 10)
+                self.blocks.append(block)
+                self.blocksMap[(x,y)] = 1
+                x += 27
+            y += 12
+        self.blocksMapKeys = sorted(self.blocksMap.keys())
+
+    def ballUpdate(self):
+        for _ in range(2):
+            speed = self.speeds[self.angle]
+            xMovement = True
+            if _:
+                self.ball.x += speed[0] * self.direction
+            else:
+                self.ball.y += speed[1] * self.direction * self.yDirection
+                xMovement = False
+            if self.ball.x <= 0 or self.ball.x >= 800:
+                self.angle = self.swap[self.angle]
+                if self.ball.x <= 0:
+                    self.ball.x = 1
+                else:
+                    self.ball.x = 799
+            if self.ball.y <= 0:
+                self.ball.y = 1
+                self.yDirection *= -1
+            
+            for paddle in self.paddle:
+                if paddle[0].colliderect(self.ball):
+                    self.angle = paddle[1]
+                    self.direction = -1
+                    self.yDirection = -1
+                    break
+            check = self.ball.collidelist(self.blocks)
+            if check != -1:
+                self.blocksMap[(self.blocks[check].x, self.blocks[check].y)]=0
+                self.blocks.pop(check)
+
+                if xMovement:
+                    self.direction *= -1
+                self.yDirection *= -1
+                self.score += 1
+            if self.ball.y > 600 or not self.blocks:
+                self.gameOver = True
+
+    def step(self):
+        if self.net != None:
+            self.paddleUpdateByNeuralNetwork()
+        else:
+            self.paddleUpdateByKeyboard()
+        self.ballUpdate()
+        #print(self.ball.x, self.paddle[0][0].x)
+
+    def paddleOffset(self, offset):
+        for p in self.paddle:
+            p[0].x += offset
+        if self.paddle[0][0].x < 0:
+            self.paddle[0][0].x = 0
+            self.paddle[1][0].x = 20
+            self.paddle[2][0].x = 40
+            self.paddle[3][0].x = 60
+        elif self.paddle[3][0].x+20 > 800:
+            self.paddle[0][0].x = 720
+            self.paddle[1][0].x = 740
+            self.paddle[2][0].x = 760
+            self.paddle[3][0].x = 780
+
+
+    def gameState(self):
+        varInfo = [self.ball.x/800, self.ball.y/800, self.direction, self.yDirection, self.angle/360]
+        varInfo += [p[0].x/800 for p in self.paddle]
+        varInfo += [self.blocksMap[k] for k in self.blocksMapKeys]
+        return np.array(varInfo, dtype=np.float64)
+
+    def storePressedButtons(self, l, r):
+        self.l, self.r = l,r
+
+    def paddleUpdateByNeuralNetwork(self):
+        l, r = self.net.activate(self.gameState())
+        l = round(max(min(l,1),0))
+        r = round(max(min(r,1),0))
+        self.storePressedButtons(l,r)
+        offset = 20*(r-l)
+        self.paddleOffset(offset)
+
+    def paddleUpdateByKeyboard(self):
+        keys = pygame.key.get_pressed()
+        l, r = keys[pygame.K_LEFT], keys[pygame.K_RIGHT]
+        self.storePressedButtons(l,r)
+        offset = 20*(r-l)
+        self.paddleOffset(offset)
+
+    def paddleUpdateByMouse(self):
+        pos = pygame.mouse.get_pos()
+        on = 0
+        for p in self.paddle:
+            p[0].x = pos[0] + 20 * on
+            on += 1
+
+    def drawGame(self):
+        self.screen.fill((0, 0, 0))
+        for block in self.blocks:
+            pygame.draw.rect(self.screen, (255,255,255), block)
+        for paddle in self.paddle:
+            pygame.draw.rect(self.screen, (255,255,255), paddle[0])
+        pygame.draw.rect(self.screen, (255,255,255), self.ball)
+        self.screen.blit(self.font.render(str(self.score), -1, (255,255,255)), (400, 550))
+
+        if self.l:
+            self.screen.blit(self.font.render("L", -1, (255,255,255)), (400, 520))
+        if self.r:
+            self.screen.blit(self.font.render("R", -1, (255,255,255)), (450, 520))
+        
+
+
+    def getNetLayersMap(self):
+        layers = {k:0 for k in self.config.genome_config.input_keys}
+        connections = set()
+        for cg in self.genome.connections.values():
+            if cg.enabled:
+                connections.add(cg.key)
+        n = 0
+        done = False
+        while not done:
+            done = True
+            for a, b in connections:
+                if a in layers and layers[a] == n:
+                    layers[b] = n+1
+                    done = False
+            n += 1
+        return layers
+
+
+
+    def drawNet(self):
+        if self.net is None:
+            return
+        genome = self.genome
+        config = self.config
+        numLayers = max(self.netLayersMap.values())+1
+        for cg in self.genome.connections.values():
+            if cg.enabled:
+                a,b = cg.key
+                if a < 0:
+                    a = abs(a)
+                    if a < 10:
+                        if a == 1:
+                            pygame.draw.rect(self.screen, (255,0,0), pygame.Rect(self.ball.x,600-5,5,5)) 
+                        if a == 2:
+                            pygame.draw.rect(self.screen, (255,0,0), pygame.Rect(0,self.ball.y,5,5)) 
+                    else:
+                        a -= 10
+                        x,y = self.blocksMapKeys[a]
+                        pygame.draw.rect(self.screen, (255,0,0),pygame.Rect(x+10, y+2, 5, 6)) 
+
+
+
+
+    def play(self):
+        if self.gui:
+            #pygame.mouse.set_visible(False)
+            clock = pygame.time.Clock()
+        self.newGame()
+        while True:
+            if self.gui:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        return self.score
+            if not self.gameOver:
+                self.step()
+            elif not self.gui: 
+                return self.score
+            if self.gui:
+                clock.tick(60)
+                self.drawGame()
+                self.drawNet()
+                pygame.display.update()
+
+if __name__ == "__main__":
+    Breakout().play()
+
+
+
