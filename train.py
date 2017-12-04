@@ -36,7 +36,7 @@ def run(config_file):
     p.add_reporter(stats)
     p.add_reporter(neat.Checkpointer(5))
 
-    winner = p.run(eval_genomes, 1000)
+    winner = p.run(eval_genomes, 10000)
 
     with open("population.data","wb") as f:
         pickle.dump(p,f)
