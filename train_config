@@ -2,7 +2,7 @@
 fitness_criterion     = max
 fitness_threshold = 520
 #no_fitness_termination = True
-pop_size              = 1500
+pop_size              = 3000
 reset_on_extinction   = True
 
 [DefaultGenome]
@@ -65,6 +65,10 @@ response_mutate_power   = 0.0
 response_mutate_rate    = 0.0
 response_replace_rate   = 0.0
 
+single_structural_mutation = True
+structural_mutation_surer = True
+
+
 # connection weight options
 weight_init_mean        = 0.0
 weight_init_stdev       = 1
@@ -80,8 +84,8 @@ compatibility_threshold = 3.0
 [DefaultStagnation]
 species_fitness_func = max
 max_stagnation       = 30
-species_elitism      = 2
+species_elitism      = 5
 
 [DefaultReproduction]
-elitism            = 2
+elitism            = 5
 survival_threshold = 0.5

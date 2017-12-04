@@ -14,7 +14,7 @@ class Breakout:
             self.netLayersMap = self.getNetLayersMap()
         self.gui = gui
         if self.gui:
-            self.screen = pygame.display.set_mode((800, 600))
+            self.screen = pygame.display.set_mode((1200, 600))
         self.blocks = []
         self.paddle = [[pygame.Rect(300, 500, 20, 10), 120],
                 [pygame.Rect(320, 500, 20, 10),100],
@@ -123,7 +123,6 @@ class Breakout:
             self.paddle[2][0].x = 760
             self.paddle[3][0].x = 780
 
-
     def gameState(self):
         varInfo = [self.ball.x/800, self.ball.y/800, self.direction, self.yDirection, self.angle/360]
         varInfo += [p[0].x/800 for p in self.paddle]
@@ -155,6 +154,9 @@ class Breakout:
             p[0].x = pos[0] + 20 * on
             on += 1
 
+    def drawText(self, text, loc):
+        self.screen.blit(self.font.render(str(text), -1, (255,255,255)), loc)
+
     def drawGame(self):
         self.screen.fill((0, 0, 0))
         for block in self.blocks:
@@ -162,12 +164,16 @@ class Breakout:
         for paddle in self.paddle:
             pygame.draw.rect(self.screen, (255,255,255), paddle[0])
         pygame.draw.rect(self.screen, (255,255,255), self.ball)
-        self.screen.blit(self.font.render(str(self.score), -1, (255,255,255)), (400, 550))
+        self.drawText(self.score, (400,520))
+        x,y = 700, 300
+        for info in self.gameState()[0:9]:
+            self.drawText(round(info,2), (x,y))
+            y += 30
 
         if self.l:
-            self.screen.blit(self.font.render("L", -1, (255,255,255)), (400, 520))
+            self.drawText("L", (1180, 280))
         if self.r:
-            self.screen.blit(self.font.render("R", -1, (255,255,255)), (450, 520))
+            self.drawText("R", (1180, 310))
         
 
 
@@ -189,30 +195,41 @@ class Breakout:
         return layers
 
 
+    def locationOnScreenOfInput(self, a):
+        # input keys are -1 ,-2 , ..., -529
+        # output keys are 0, 1
+        if a < 0:
+            a = abs(a)
+            if a < 10:
+                return 730, 300 + 30*(a-1)
+            a -= 10
+            x,y = self.blocksMapKeys[a]
+            return x+12, y+5
+        else:
+            x, y = 800, 0
+            numLayers = len(set(self.netLayersMap.values()))
+            dx = 800//numLayers
+            layer = self.netLayersMap[a]
+            sameLayerInputs = sorted([b for b in self.netLayersMap if self.netLayersMap[b]==layer])
+            numInLayer = len(sameLayerInputs)
+            dy = 600//numInLayer
+            i = sameLayerInputs.index(a)
+            return x + dx*(layer-1), y + dy * i
+
+    def drawConnection(self, a,b):
+        start_pos = self.locationOnScreenOfInput(a)
+        end_pos = self.locationOnScreenOfInput(b)
+        pygame.draw.line(self.screen, (255,0,0), start_pos, end_pos)
 
     def drawNet(self):
         if self.net is None:
             return
         genome = self.genome
         config = self.config
-        numLayers = max(self.netLayersMap.values())+1
         for cg in self.genome.connections.values():
             if cg.enabled:
                 a,b = cg.key
-                if a < 0:
-                    a = abs(a)
-                    if a < 10:
-                        if a == 1:
-                            pygame.draw.rect(self.screen, (255,0,0), pygame.Rect(self.ball.x,600-5,5,5)) 
-                        if a == 2:
-                            pygame.draw.rect(self.screen, (255,0,0), pygame.Rect(0,self.ball.y,5,5)) 
-                    else:
-                        a -= 10
-                        x,y = self.blocksMapKeys[a]
-                        pygame.draw.rect(self.screen, (255,0,0),pygame.Rect(x+10, y+2, 5, 6)) 
-
-
-
+                self.drawConnection(a,b)
 
     def play(self):
         if self.gui:
