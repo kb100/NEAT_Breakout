@@ -6,6 +6,7 @@ import random
 import multiprocessing
 import itertools, functools
 import breakout
+import visualize
 
 
 def eval_genome(genome_info, config):
@@ -15,7 +16,7 @@ def eval_genome(genome_info, config):
 
 def eval_genomes(genomes, config):
     #print(set(itertools.starmap(eval_genome, zip(genomes, itertools.repeat(config)))))
-    with multiprocessing.Pool(processes=4) as pool:
+    with multiprocessing.Pool(processes=6) as pool:
         fitnesses = pool.starmap(eval_genome, zip(genomes, itertools.repeat(config)))
         for (genome_id, genome), fitness in zip(genomes, fitnesses):
             genome.fitness = fitness
@@ -34,9 +35,12 @@ def run(config_file):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.add_reporter(neat.Checkpointer(5))
+    p.add_reporter(neat.Checkpointer(1))
 
-    winner = p.run(eval_genomes, 10000)
+    winner = p.run(eval_genomes, 1000)
+    visualize.draw_net(config, winner, view=False, filename="winner_net_graph.pdf")
+    visualize.plot_stats(stats, ylog=False, view=False)
+    visualize.plot_species(stats, view=False)
 
     with open("population.data","wb") as f:
         pickle.dump(p,f)

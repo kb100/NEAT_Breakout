@@ -2,6 +2,7 @@ import pygame
 import sys
 import numpy as np
 import neat
+import random
 
 class Breakout:
     def __init__(self, genome=None, config=None, gui=True):
@@ -9,6 +10,9 @@ class Breakout:
         self.netLayersMap = None
         self.genome = genome
         self.config = config
+        self.historyLength = 3
+        self.maxGameLen = 60*60*5
+        self.gameLen = 0
         if genome is not None and config is not None:
             self.net = neat.nn.FeedForwardNetwork.create(genome, config)
             self.netLayersMap = self.getNetLayersMap()
@@ -49,6 +53,9 @@ class Breakout:
         self.angle = 80
         self.l = 0
         self.r = 0
+        self.ballxHistory = [self.ball.x] * self.historyLength
+        self.ballyHistory = [self.ball.y] * self.historyLength
+        self.paddlexHistory = [self.paddle[2][0].x] * self.historyLength
 
     def createBlocks(self):
         self.blocks = []
@@ -105,8 +112,17 @@ class Breakout:
         if self.net != None:
             self.paddleUpdateByNeuralNetwork()
         else:
-            self.paddleUpdateByKeyboard()
+            self.paddleUpdateByMouse()
         self.ballUpdate()
+        self.ballxHistory.pop()
+        self.ballxHistory.insert(0, self.ball.x)
+        self.ballyHistory.pop()
+        self.ballyHistory.insert(0, self.ball.y)
+        self.paddlexHistory.pop()
+        self.paddlexHistory.insert(0, self.paddle[2][0].x)
+        self.gameLen += 1
+        if self.gameLen == self.maxGameLen:
+            self.gameOver = True
         #print(self.ball.x, self.paddle[0][0].x)
 
     def paddleOffset(self, offset):
@@ -126,7 +142,10 @@ class Breakout:
     def gameState(self):
         varInfo = [self.ball.x/800, self.ball.y/800, self.direction, self.yDirection, self.angle/360]
         varInfo += [p[0].x/800 for p in self.paddle]
-        varInfo += [self.blocksMap[k] for k in self.blocksMapKeys]
+        varInfo += [x/800 for x in self.ballxHistory]
+        varInfo += [y/800 for y in self.ballyHistory]
+        varInfo += [x/800 for x in self.paddlexHistory]
+        #varInfo += [self.blocksMap[k] for k in self.blocksMapKeys]
         return np.array(varInfo, dtype=np.float64)
 
     def storePressedButtons(self, l, r):
@@ -248,7 +267,7 @@ class Breakout:
             if self.gui:
                 clock.tick(60)
                 self.drawGame()
-                self.drawNet()
+                #self.drawNet()
                 pygame.display.update()
 
 if __name__ == "__main__":
