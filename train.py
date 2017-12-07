@@ -35,7 +35,7 @@ def run(config_file):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.add_reporter(neat.Checkpointer(1))
+    p.add_reporter(neat.Checkpointer(50))
 
     winner = p.run(eval_genomes, 1000)
     visualize.draw_net(config, winner, view=False, filename="winner_net_graph.pdf")
@@ -47,8 +47,8 @@ def run(config_file):
 
     # Show output of the most fit genome against training data.
     winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
-    with open("winner.net","wb") as f:
-        pickle.dump(winner_net, f)
+    with open("winner.genome","wb") as f:
+        pickle.dump((winner,config), f)
 
 if __name__ == "__main__":
     run("train_config")

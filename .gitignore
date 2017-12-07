@@ -2,6 +2,14 @@
 neat-checkpoint-*
 *.data
 *.net
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.synctex.gz
+*.zpid
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

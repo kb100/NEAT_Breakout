@@ -1,0 +1,48 @@
+\begin{thebibliography}{1}
+
+\bibitem{neatpython}
+CodeReclaimers.
+\newblock Neat-python.
+\newblock \url{https://neat-python.readthedocs.io}, August 2017.
+
+\bibitem{mnih2013playing}
+V.~Mnih, K.~Kavukcuoglu, D.~Silver, A.~Graves, I.~Antonoglou, D.~Wierstra, and
+  M.~Riedmiller.
+\newblock Playing atari with deep reinforcement learning.
+\newblock {\em arXiv preprint arXiv:1312.5602}, 2013.
+
+\bibitem{mnih2015human}
+V.~Mnih, K.~Kavukcuoglu, D.~Silver, A.~A. Rusu, J.~Veness, M.~G. Bellemare,
+  A.~Graves, M.~Riedmiller, A.~K. Fidjeland, G.~Ostrovski, et~al.
+\newblock Human-level control through deep reinforcement learning.
+\newblock {\em Nature}, 518(7540):529--533, 2015.
+
+\bibitem{max00355breakout}
+F.~Primerano.
+\newblock Breakout.
+\newblock \url{https://github.com/Max00355/Breakout}, December 2015.
+
+\bibitem{sethbling2015}
+SethBling.
+\newblock Mari/o machine learning for video games.
+\newblock \url{https://www.youtube.com/watch?v=qv6UVOQ0F44}, June 2015.
+
+\bibitem{pygame}
+P.~Shinners, R.~Dudfield, M.~von Appen, and B.~Pendleton.
+\newblock Pygame.
+\newblock \url{https://www.pygame.org/}, January 2017.
+
+\bibitem{stanley2002efficient}
+K.~O. Stanley and R.~Miikkulainen.
+\newblock Efficient reinforcement learning through evolving neural network
+  topologies.
+\newblock In {\em Proceedings of the 4th Annual Conference on Genetic and
+  Evolutionary Computation}, pages 569--577. Morgan Kaufmann Publishers Inc.,
+  2002.
+
+\bibitem{stanley2002evolving}
+K.~O. Stanley and R.~Miikkulainen.
+\newblock Evolving neural networks through augmenting topologies.
+\newblock {\em Evolutionary computation}, 10(2):99--127, 2002.
+
+\end{thebibliography}

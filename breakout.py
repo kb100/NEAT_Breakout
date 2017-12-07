@@ -11,6 +11,7 @@ class Breakout:
         self.genome = genome
         self.config = config
         self.historyLength = 3
+        self.drawExtraInfo = False
         self.maxGameLen = 60*60*5
         self.gameLen = 0
         if genome is not None and config is not None:
@@ -18,7 +19,7 @@ class Breakout:
             self.netLayersMap = self.getNetLayersMap()
         self.gui = gui
         if self.gui:
-            self.screen = pygame.display.set_mode((1200, 600))
+            self.screen = pygame.display.set_mode((800, 600))
         self.blocks = []
         self.paddle = [[pygame.Rect(300, 500, 20, 10), 120],
                 [pygame.Rect(320, 500, 20, 10),100],
@@ -185,16 +186,14 @@ class Breakout:
         pygame.draw.rect(self.screen, (255,255,255), self.ball)
         self.drawText(self.score, (400,520))
         x,y = 700, 300
-        for info in self.gameState()[0:9]:
-            self.drawText(round(info,2), (x,y))
-            y += 30
-
-        if self.l:
-            self.drawText("L", (1180, 280))
-        if self.r:
-            self.drawText("R", (1180, 310))
-        
-
+        if self.drawExtraInfo:
+            for info in self.gameState()[0:9]:
+                self.drawText(round(info,2), (x,y))
+                y += 30
+            if self.l:
+                self.drawText("L", (400, 550))
+            if self.r:
+                self.drawText("R", (430, 550))
 
     def getNetLayersMap(self):
         layers = {k:0 for k in self.config.genome_config.input_keys}
@@ -265,7 +264,7 @@ class Breakout:
             elif not self.gui: 
                 return self.score
             if self.gui:
-                clock.tick(60)
+                clock.tick(120)
                 self.drawGame()
                 #self.drawNet()
                 pygame.display.update()
