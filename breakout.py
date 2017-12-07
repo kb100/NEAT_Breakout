@@ -11,7 +11,7 @@ class Breakout:
         self.genome = genome
         self.config = config
         self.historyLength = 3
-        self.drawExtraInfo = False
+        self.drawExtraInfo = True
         self.maxGameLen = 60*60*5
         self.gameLen = 0
         if genome is not None and config is not None:
@@ -254,6 +254,7 @@ class Breakout:
             #pygame.mouse.set_visible(False)
             clock = pygame.time.Clock()
         self.newGame()
+        tickrate = 120
         while True:
             if self.gui:
                 for event in pygame.event.get():
@@ -264,7 +265,15 @@ class Breakout:
             elif not self.gui: 
                 return self.score
             if self.gui:
-                clock.tick(120)
+                clock.tick(tickrate)
+                keys = pygame.key.get_pressed()
+                u, d = keys[pygame.K_UP], keys[pygame.K_DOWN]
+                if u:
+                    tickrate += 20
+                if d:
+                    tickrate -= 20
+                    tickrate = max(20,tickrate)
+
                 self.drawGame()
                 #self.drawNet()
                 pygame.display.update()
