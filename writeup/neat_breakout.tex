@@ -1,4 +1,5 @@
 \documentclass[letterpaper, twocolumn, conference]{article}
+
 \usepackage{lipsum}
 \usepackage{mathptmx}
 \usepackage{graphicx}
@@ -11,7 +12,7 @@
 \begin{document}
 \maketitle{}
 \begin{abstract}
-    We present a replication of the learning of a version of 
+    We present a replication of the learning of a version of
     Breakout via machine learning.
     The method used is NeuroEvolution of Augmenting Topologies (NEAT).
     We show that given the current and past few game states as inputs, NEAT
@@ -45,12 +46,12 @@ The resultant network is typically very small, having 5 or less non-input nodes 
     \includegraphics[width=.54 \textwidth]{avg_fitness.pdf}
     \caption{A successful training experiment. In this case, the pre-ball-tracking era lasts
         until around generation 325, where the network abruptly learns how to track the ball.
-        The ball-tracking era then lasts until around generation 350, where the network learns to avoid missing stray blocks. The aiming era is eached in the last few generations. 
+        The ball-tracking era then lasts until around generation 350, where the network learns to avoid missing stray blocks. The aiming era is eached in the last few generations.
         Generations, each of 200 individuals, took an average time of 2.835 seconds to evaluate running on an
         Intel Core i7-4790K @ 4.00GHz in parallel on 6 cores. The total runtime was around 17.5 minutes.}
 \end{figure}
 
-It turned out to be critical to the success of the NEAT algorithm that several previous game states (3 is sufficient) were included as inputs to the neural networks. 
+It turned out to be critical to the success of the NEAT algorithm that several previous game states (3 is sufficient) were included as inputs to the neural networks.
 Giving only the current state, including the direction of the ball, as input was not sufficient in any
 of our experiments to produce a network that could even reliably track the ball.
 
