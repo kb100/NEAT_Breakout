@@ -254,7 +254,7 @@ class Breakout:
             #pygame.mouse.set_visible(False)
             clock = pygame.time.Clock()
         self.newGame()
-        tickrate = 120
+        tickrate = 30
         while True:
             if self.gui:
                 for event in pygame.event.get():
