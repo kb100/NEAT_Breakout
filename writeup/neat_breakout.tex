@@ -21,7 +21,11 @@
 
 \section{Introduction}
 
-Explain Breakout, explain NEAT algorithm overview.
+Breakout is a game by which the user moves a paddle to the left and right a fixed distance from the bottom of the screen in an attempt to: (1) prevent the ball from passing beneath the player while (2) maximizing their score. In the case that the ball hits the paddle, the ball ricochets in the opposite direction hitting a wall or a brick. If it hits a brick, a points are awarded accordingly. This continuous until either the ball is missed or all 520 bricks are hit by the ball~\cite{wiki:breakout}.
+
+Neural Evolution of Augmenting Topologies (NEAT)~\cite{neatpython} is a machine learning algorithm that follows a biologically inspired metahuersitic. NEAT attempts to find a solution by generating varying architectures and taking the best features of successful or fit architectures and permitting them to remain while undesirable features are lost.
+
+Breakout is one of the  Atari 2600 games  and is thus an Arcade Learning Environment. This provides a challenging platform for an agent during a reinforcement learning task and is commonly used by the reinforcement learning community as a platform for testing~\cite{Machado17}. Here we see if our NEAT algorithm can learn how to play Breakout and evaluate its performance across generations in python.
 
 \begin{figure}[h!]
     \centering
@@ -174,7 +178,15 @@ survival_threshold = 0.05
 
 
 \section{Discussions}
-Talk about Deep Q learning and other approaches that are better than ours.
+What was learned from this experience was largely the difficulty in using genetic algorithms in  neural networks, specifically, evolutionary algorithms for reinforcement learning ~\cite{Grefenstette99} (EARL). For example, the number of generations to reach finish the game may be large. Another issue is in that giving the network such a small set of outputs and forcing it to learn to play a game in such a manner may not be the most pratical approach as this is essentially a random walk on the solution space. There are several future directions for this experment.
+
+We may potentially attempt to redo this experiment with a fixed neural architecture and optimise through stochastic gradient descent on a reward function. specifically, we would implement a deep neural network that optimises a quality function, a deep q network. Such networks have performed empirically better than professionals on games of the Atari 2600 suite, a type of aracade learning environment~\cite{Machado17} that is seen as a baseline for reinforcement learning taks. However, such an approach may offer little insight into the betterment of EARL's. Nevertheless, given that NEAT and DQN's have been demonstrated to perform well on tasks, a comparsion may be of interest to some.
+
+An alternative future direction of exploration would be within the realm of EARLs. The problem is that the problem of optimisation is already hard. Basic questions like what problems are difficult for a genetic algorithm (GA), let alone an EARL, to solve are not well answered~\cite{stejpan09}. This is a problem that we had personally encountered with respect to our optimisitic inital choice of game-- tetris. Tetris proved to be too complex of a solution space for \texttt{NEAT} to reliably learn to navigate. Indeed, after generations, it was not apparent that the network was learning how to play the game.
+
+If one is to flout rigor such as how well an EARL performs with repsect to the heuristic, or the difficulty of the problem, we may also elect to implement a hierarchical representation ~\cite{Liu17}in order to search through the space of possible solutions. Such a hierarchical approach is not only closer to how people generally solve, problems, but has been demonstrated empirically to similar results to networks in the fraction of the time of other EARL's. Nevertheless, the trade off is that instead of learning about EARL's we only learn of a new method that works.
+
+
 
 
 \begingroup
