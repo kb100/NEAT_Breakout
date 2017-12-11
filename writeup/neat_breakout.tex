@@ -21,14 +21,23 @@
 
 \section{Introduction}
 
+In 2015, prominent internet celebrity, minecraft red-stone master and do-hicky extrodinare-- SethBling released a youtube video that chagned the landscape for fans of the popular side scroller featuring the world's most popular Italian~\cite{sethbling2015}. As opposed to the tradition methods of game play, where the agent is a human player, the game was played by a neural network. Furthermore, as opposed to neural networks, it was played by an evolutionary neural network that evolved by augmenting the neural network's architecture~\cite{stanley2002evolving}. The release of this video has inspired many, both inside and outside, of the reinforcment learning community and this paper. Here, we apply the neural evolution of augmenting topologies algorithm to the famous Atari Breakout\.
+
 Breakout is a game by which the user moves a paddle to the left and right a fixed distance from the bottom of the screen in an attempt to:
-(1) prevent the ball from passing beneath the player while 
+(1) prevent the ball from passing beneath the player while
 (2) maximizing their score.
-In the case that the ball hits the paddle, the ball ricochets in the opposite direction hitting a wall or a brick. 
+In the case that the ball hits the paddle, the ball ricochets in the opposite direction hitting a wall or a brick.
 For each brick that is hit, a point is awarded.
 This continues until either the player misses the ball or all 520 bricks are hit~\cite{wiki:breakout}.
 
-Neural Evolution of Augmenting Topologies (NEAT)~\cite{neatpython} is a machine learning algorithm that follows a biologically inspired metahuersitic. NEAT attempts to find a solution by generating varying architectures and taking the best features of successful or fit architectures and permitting them to remain while undesirable features are lost.
+Neural Evolution of Augmenting Topologies (NEAT)~\cite{neatpython} is a machine learning algorithm that follows a biologically inspired metahuersitic. \texttt{NEAT} attempts to find a solution by generating varying architectures and taking the best features of successful or fit architectures and permitting them to remain while undesirable features are lost.
+
+\texttt{NEAT}, works by intializing a population of networks and evaluating their prerformance by a fitness function. After the inital population, the memebers of the population that are deemed the most fit are crossed over and reproduced, and through an alternation or mutation phase by in which random change to the genotype of a poplution may or may not be made. By genotype, we mean a change to the topology of the successful networks i.e. the addition (removal) of a node or the addition (removal) of a connection between nodes. The type of mutations are not limited to only phenotypic changes but one may also alter factors such as the:  activation funciton, what activity of nodes, weights etc. Again, the population is evaluated and the most fit are crossed over. This process repeats over generations of populations. If there is no progress in a population with respect to the reward function, the population is deemed unfit, killed and a new population is reinitalized. As \texttt{NEAT} is a type of genetic algorithm for reinforcement learning, it follows the general shape outlined in figure 1.
+
+\begin{figure}
+    \includegraphics{EA.png}
+    \caption{\textit{Pesudo-code Evolutionary Algorithm:} $P(t)$ is the population at time step $t=1,...n$. \texttt{Alter} corresponds to the mutation between populations and \texttt{evalute} corresponds to the measure of fitness of a given population.  }
+\end{figure}
 
 Breakout is one of the  Atari 2600 games  and is thus an Arcade Learning Environment. This provides a challenging platform for an agent during a reinforcement learning task and is commonly used by the reinforcement learning community as a platform for testing~\cite{Machado17}. Here we see if our NEAT algorithm can learn how to play Breakout and evaluate its performance across generations in python.
 
