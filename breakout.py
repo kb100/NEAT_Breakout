@@ -141,10 +141,20 @@ class Breakout:
             self.paddle[3][0].x = 780
 
     def gameState(self):
+
+        # -1 -2 -3 -4 -5
         varInfo = [self.ball.x/800, self.ball.y/800, self.direction, self.yDirection, self.angle/360]
+
+        # -6 -7 -8 -9
         varInfo += [p[0].x/800 for p in self.paddle]
+
+        # -10 -11 -12
         varInfo += [x/800 for x in self.ballxHistory]
+
+        # -13 -14 -15
         varInfo += [y/800 for y in self.ballyHistory]
+
+        # -16 -17 -18
         varInfo += [x/800 for x in self.paddlexHistory]
         #varInfo += [self.blocksMap[k] for k in self.blocksMapKeys]
         return np.array(varInfo, dtype=np.float64)
