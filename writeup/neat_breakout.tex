@@ -13,39 +13,44 @@
 \maketitle{}
 \begin{abstract}
     We present a replication of the learning of a version of
-    Breakout via machine learning.
-    The method used is NeuroEvolution of Augmenting Topologies (NEAT).
+    Breakout via machine learning, specifically using an evolutionary algorithm known as NEAT.
     We show that given the current and past few game states as inputs, NEAT
-    can evolve a neural network that can completely clear a game of Breakout.
+    can evolve a neural network that can completely clear a game of Breakout,
+    and we identify three eras of learning that occur during training.
 \end{abstract}
 
 \section{Introduction}
 
-In 2015, prominent internet celebrity, minecraft red-stone master and do-hicky extraordinaire-- SethBling released a youtube video that chagned the landscape for fans of the popular side scroller featuring the world's most popular Italian~\cite{sethbling2015}. As opposed to the tradition methods of game play, where the agent is a human player, the game was played by a neural network. Furthermore, as opposed to neural networks, it was played by an evolutionary neural network that evolved by augmenting the neural network's architecture~\cite{stanley2002evolving}. The release of this video has inspired many, both inside and outside, of the reinforcment learning community and this paper. Here, we apply the neural evolution of augmenting topologies algorithm to the famous Atari Breakout\.
-
-Breakout is a game by which the user moves a paddle to the left and right a fixed distance from the bottom of the screen in an attempt to:
-(1) prevent the ball from passing beneath the player while
-(2) maximizing their score.
-In the case that the ball hits the paddle, the ball ricochets in the opposite direction hitting a wall or a brick.
-For each brick that is hit, a point is awarded.
-This continues until either the player misses the ball or all 520 bricks are hit~\cite{wiki:breakout}.
-
-Neural Evolution of Augmenting Topologies (NEAT)~\cite{neatpython} is a machine learning algorithm that follows a biologically inspired metahuersitic. \texttt{NEAT} attempts to find a solution by generating varying architectures and taking the best features of successful or fit architectures and permitting them to remain while undesirable features are lost.
-
-\texttt{NEAT}, works by intializing a population of networks and evaluating their prerformance by a fitness function. After the inital population, the memebers of the population that are deemed the most fit are crossed over and reproduced, and through an alternation or mutation phase by in which random change to the genotype of a poplution may or may not be made. By genotype, we mean a change to the topology of the successful networks i.e. the addition (removal) of a node or the addition (removal) of a connection between nodes. The type of mutations are not limited to only phenotypic changes but one may also alter factors such as the:  activation funciton, what activity of nodes, weights etc. Again, the population is evaluated and the most fit are crossed over. This process repeats over generations of populations. If there is no progress in a population with respect to the reward function, the population is deemed unfit, killed and a new population is reinitalized. As \texttt{NEAT} is a type of genetic algorithm for reinforcement learning, it follows the general shape outlined in figure 1.
-
-\begin{figure}
-    \includegraphics{EA.png}
-    \caption{\textit{Pesudo-code Evolutionary Algorithm:} $P(t)$ is the population at time step $t=1,...n$. \texttt{Alter} corresponds to the mutation between populations and \texttt{evalute} corresponds to the measure of fitness of a given population. \cite{Grefenstette99} }
-\end{figure}
-
-Breakout is one of the  Atari 2600 games  and is thus an Arcade Learning Environment. This provides a challenging platform for an agent during a reinforcement learning task and is commonly used by the reinforcement learning community as a platform for testing~\cite{Machado17}. Here we see if our NEAT algorithm can learn how to play Breakout and evaluate its performance across generations in python.
+Recent advances in machine learning have spurred both research interest in and popular applications
+of neural networks.
+A popular application of particular interest is teaching neural networks to play video games.
+Such games often involve complex and potentially long-term strategies to play optimally.
+It was demonstrated in~\cite{mnih2013playing} and~\cite{mnih2015human} that deep reinforcement learning can be used to train a neural network
+to play a wide array of Atari games.
+Similarly, YouTuber SethBling demonstrated that a neural network could learn via evolution to play the Super Nintendo game Super Mario World~\cite{sethbling2015}.
+We took inspiration from these projects and have used the same evolutionary algorithm to train a neural network
+to play a version of the Atari game Breakout.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=.45\textwidth]{breakout.png}
-    \caption{The initial setup of the game Breakout.}
+    \caption{The version of Breakout we used.}
 \end{figure}
+
+Breakout is a game by which the user moves a paddle to the left and right a fixed distance
+from the bottom of the screen in an attempt to destroying as many bricks as possible
+by bouncing a ball off the paddle.
+For each brick that is hit, a point is awarded.
+This continues until either the player misses the ball or all 520 bricks are hit.
+
+The evolutionary algorithm we employ is NeuroEvolution of Augmenting Topologies (NEAT).
+NEAT is a type of genetic algorithm that follows biological meta-heuristics.
+In NEAT, neural network nodes and weights are modeled as genes.
+Genomes are randomly mutated by adding/deleting nodes, adding/deleting connections, changing connection weights, etc.
+After mutation, individuals are ranked by their fitness at performing a certain task, in our case playing a game of Breakout.
+The best performing individuals are allowed to mate using a genetic crossover algorithm,
+producing children that compose the next generation of individuals.
+This process is repeated until some fitness threshold is reached, typically that the most fit individual succeeds at a particular task, in our case achieving a maximum score in Breakout.
 
 \section{Results}
 We find there are qualitatively three eras of evolution of the network:
@@ -73,6 +78,15 @@ It turned out to be critical to the success of the NEAT algorithm that several p
 Giving only the current state, including the direction of the ball, as input was not sufficient in any
 of our experiments to produce a network that could even reliably track the ball.
 
+Also, it was necessary to train the network with a fixed initial condition (initial ball speed and angle).
+We found that randomizing the initial condition made it too hard for evolution to select for individuals
+that could track the ball because, for instance,
+a network that pressed no buttons at all could earn sometimes 50 points with a very lucky initial condition.
+Although the initial condition ultimately used was deterministic,
+the final trained networks do not simply memorize a sequence of inputs that work for the initial condition.
+Indeed, the final networks turn out to be far too small for such memorization to be possible.
+Further, testing the most fit network with new initial conditions proved that its performance does generalize.
+
 Another pitfall that was avoided was giving too many inputs to the networks.
 If the game state fed to the network
 included information about all 520 blocks, then regardless of whether the game history was given,
@@ -80,17 +94,17 @@ none of our experiments produced a network that could reliably track the ball.
 The vast majority of networks trained in this manner did precisely nothing, making no button presses
 at all.
 On the other hand, training was able to produce an aiming era individual
-when the density of blocks remaining in a few (under 10) predetermined regions were passed as inputs.
+when the density of blocks remaining in a few predetermined regions were passed as inputs.
 Training also succeeded when the game state passed to the networks included no information about the remaining blocks whatsoever, i.e.\ a network that saw only the paddle and ball could still achieve a maximum score.
 
 \section{Methods}
-We modified a Pygame~\cite{pygame} implementation of Breakout (cf.~\cite{max00355breakout}) to allow
+We modified a Pygame implementation (cf.~\cite{pygame}) of Breakout (cf.~\cite{max00355breakout}) to allow
 human mouse input and human keyboard input (for testing purposes), or automated keyboard input.
-Then we used NEAT-Python~\cite{neatpython} to run the NEAT algorithm.
+Then we used NEAT-Python (cf.~\cite{neatpython}) to run the NEAT algorithm.
 
 To allow the neural network to play Breakout,
 each frame a representation of the game state is computed and
-passed as the inputs to a neural network.
+passed as the input layer to a neural network.
 The neural network has two outputs ``L'' and ``R'', which are binarized
 and taken to indicate whether the left or right arrows are being pressed by the neural network.
 
@@ -116,17 +130,14 @@ pop_size              = 200
 reset_on_extinction   = True
 
 [DefaultGenome]
-# node activation options
 activation_default      = sigmoid
 activation_mutate_rate  = 0
 activation_options      = sigmoid
 
-# node aggregation options
 aggregation_default     = sum
 aggregation_mutate_rate = 0
 aggregation_options     = sum
 
-# node bias options
 bias_init_mean          = 0.0
 bias_init_stdev         = .5
 bias_max_value          = 5
@@ -135,31 +146,25 @@ bias_mutate_power       = .10
 bias_mutate_rate        = 0.05
 bias_replace_rate       = 0.05
 
-# genome compatibility options
 compatibility_disjoint_coefficient = 1.0
 compatibility_weight_coefficient   = 0.5
 
-# connection add/remove rates
 conn_add_prob           = 0.9
 conn_delete_prob        = 0.05
 
-# connection enable options
 enabled_default         = True
 enabled_mutate_rate     = 0.05
 
 feed_forward            = True
 initial_connection      = unconnected
 
-# node add/remove rates
 node_add_prob           = 0.1
 node_delete_prob        = 0.05
 
-# network parameters
 num_hidden              = 0
 num_inputs              = 18
 num_outputs             = 2
 
-# node response options
 response_init_mean      = 1.0
 response_init_stdev     = 0.0
 response_max_value      = 30.0
@@ -168,7 +173,6 @@ response_mutate_power   = 0.0
 response_mutate_rate    = 0.0
 response_replace_rate   = 0.0
 
-# connection weight options
 weight_init_mean        = 0.0
 weight_init_stdev       = .5
 weight_max_value        = 5
@@ -191,23 +195,44 @@ survival_threshold = 0.05
 \end{verbatim}
 
 
+
 \section{Discussions}
-What was learned from this experience was largely the difficulty in using genetic algorithms in  neural networks, specifically, evolutionary algorithms for reinforcement learning ~\cite{Grefenstette99} (EARL). For example, the number of generations to reach finish the game may be large. Another issue is in that giving the network such a small set of outputs and forcing it to learn to play a game in such a manner may not be the most pratical approach as this is essentially a random walk on the solution space. There are several future directions for this experment.
 
-We may potentially attempt to redo this experiment with a fixed neural architecture and optimise through stochastic gradient descent on a reward function. specifically, we would implement a deep neural network that optimises a quality function, a deep q network. Such networks have performed empirically better than professionals on games of the Atari 2600 suite, a type of aracade learning environment~\cite{Machado17} that is seen as a baseline for reinforcement learning taks. However, such an approach may offer little insight into the betterment of EARL's. Nevertheless, given that NEAT and DQN's have been demonstrated to perform well on tasks, a comparsion may be of interest to some.
+Although NEAT did eventually produce neural networks that can achieve the maximum score
+in Breakout, NEAT was very prone to stagnation at a local maximum fitness.
+We suspect that this was mainly due to the nature of how training was setup.
+Fitness was evaluated by allowing a network to play a whole game of Breakout start to finish.
+This means that small changes in the network could result in drastically different scores, making it hard
+to make the kind of incremental progress that evolution can select for easily.
+We suggest that anyone interested in repeating this experiment make the following changes to
+the training setup:
+\begin{enumerate}
+    \item{} Generate initial board setup, paddle location, ball location, speed, and direction randomly.
+    \item{} Make the fitness of an individual the score that the network receives in 5 seconds of simulated gameplay, averaged over 10 trials.
+    \item{} Optionally, change the scoring mechanism to assign $\gamma^n$ points for a block destroyed
+        at frame $n$ in training, where $\gamma<1$ is very close to $1$. 
+        This encourages networks not only to destroy the blocks, but to do so as quickly as possible.
+\end{enumerate}
 
-An alternative future direction of exploration would be within the realm of EARLs. The problem is that the problem of optimisation is already hard. Basic questions like what problems are difficult for a genetic algorithm (GA), let alone an EARL, to solve are not well answered~\cite{stejpan09}. This is a problem that we had personally encountered with respect to our optimisitic inital choice of game-- tetris. Tetris proved to be too complex of a solution space for \texttt{NEAT} to reliably learn to navigate. Indeed, after generations, it was not apparent that the network was learning how to play the game.
+We suggest the previous changes in order to make it easier for evolution to select for incremental progress.
+Indeed, in both~\cite{mnih2013playing} and~\cite{mnih2015human} these aspects are already present,
+though no evolutionary algorithm is used, and apparently much greater success is achieved there than here.
+For Breakout, the changes were not strictly necessary, but originally we attempted to use an analogous
+setup to train neural networks to play Tetris.
+For Tetris, we had no success, but we believe that it may be possible to learn Tetris using NEAT
+once the suggested changes are made.
 
-If one is to flout rigor such as how well an EARL performs with repsect to the heuristic, or the difficulty of the problem, we may also elect to implement a hierarchical representation ~\cite{Liu17}in order to search through the space of possible solutions. Such a hierarchical approach is not only closer to how people generally solve, problems, but has been demonstrated empirically to similar results to networks in the fraction of the time of other EARL's. Nevertheless, the trade off is that instead of learning about EARL's we only learn of a new method that works.
-
-
-
+Future work could make a direct comparison between the performance of the most fit individual trained by
+NEAT along with several different methods such as Deep Q-learning or other evolutionary algorithms.
+More work is needed to elucidate what aspects of the learning setup are the most important to allow
+long-term strategy to develop. For instance, does evolving the network topology provide any benefit over
+choosing a fixed network topology?
 
 \begingroup
     %\newpage
     \section{References}
     \renewcommand{\section}[2]{}
-    \nocite{*}
+    %\nocite{*}
     \bibliographystyle{abbrv}
     \bibliography{master}
 \endgroup

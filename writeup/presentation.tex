@@ -70,6 +70,9 @@
             \item Aiming-arc: The network actively moves to and aims the ball to clear all 520 blocks.
         \end{enumerate}
 
+        \pause{}
+        Demo time!
+
     \end{frame}
 
 
@@ -92,9 +95,12 @@
 
         \frametitle{Discussion}
          \begin{itemize}
-             \item It is difficult to predict what the network will and will not learn with respect to the inputs to the network and more so with respect to the hyperparameters.
-             \item The network is incredibly sensitive to parameters and hyperparameters
-             \item The number of generations required to successfully complete the task has a critical point.
+             \item Full board information too many inputs for success
+             \item Needed to give histroy of ball location for success
+             \item Needed to train with deterministic initial condition
+             \item Training prone to stagnation in a local maximum fitness
+             \item Success is \emph{very} sensitive to tiny changes in hyperparameters 
+             \item Originally attempted to do Tetris, which was too complicated for NEAT with the current setup
          \end{itemize}
 
     \end{frame}
@@ -103,8 +109,13 @@
 
         \frametitle{Future}
         \begin{itemize}
-            \item Explore the relationship between fitness and and solution
-            \item Compare with DQN
+            \item Change setup:
+                \begin{enumerate}
+                    \item Randomly generate initial board,
+                    \item Make score based on 5 seconds of gameplay instead of full game,
+                    \item Optionally, make score weighted by the amount of time it takes to achieve it to encourage clearing blocks \emph{quickly}
+                \end{enumerate}
+            \item Compare NEAT vs.\ other evolutionary algorithms vs.\ non-evolutionary algorithms like Deep Q-learning
         \end{itemize}
 
 
