@@ -20,26 +20,26 @@
 \section{Introduction}
     \begin{frame}
 
-        In 2015, YouTuber SethBling trained a neural network to play and successfully beat, the first level of Super Mario World [2].
+        In 2015, YouTuber SethBling trained a neural network to successfully beat the first level of Super Mario World [2].
         \frametitle{A neat application of a neat algorthim}
         \begin{figure}
             \centering
             \includegraphics[width=.54 \textwidth]{mario.png}
         \end{figure}
 
-        This was done using the Neural Evolution of Augmenting Technologies AlgOrithm (NEAT-O) from the 2002 paper by Stanley and Mikkulainen [1].
+        This was done using the Neural Evolution of Augmenting Technologies algorithm (NEAT) from the 2002 paper by Stanley and Mikkulainen [1].
 
     \end{frame}
 
     \begin{frame}
 
-        \frametitle{\texttt{NEAT}, the algorithm}
-        \texttt{NEAT} is a type of genetic algorithm that follows the biological metaheuristics of ``fitness begets evolution''.
-        \begin{enumerate}[1]
-            \item Model neural network nodes and weights as genes
-            \item Randomly mutate genomes (add/delete node, add/delete connection, change connection weight,  etc.),
-            \item Rank individuals by fitness,
-            \item Allow best performing to mate using genetic crossover algorithm
+        \frametitle{NEAT, the algorithm}
+        NEAT is a type of genetic algorithm that follows the biological metaheuristics of ``fitness begets evolution''.
+        \begin{enumerate}
+            \item Model neural network nodes and weights as genes.
+            \item Randomly mutate genomes (add/delete node, add/delete connection, change connection weight,  etc.).
+            \item Rank individuals by fitness.
+            \item Allow best performing to mate using genetic crossover algorithm.
             \item Repeat until fitness threshold is reached.
         \end{enumerate}
 
@@ -63,11 +63,11 @@
     \begin{frame}
 
         \frametitle{Results}
-        Qualitatively, it appears there are three eras
+        Qualitatively, it appears there are three eras:
         \begin{enumerate}
-            \item Pre-ball-tracking arc: The network does nothing or makes small and arbitrary movements
-            \item Ball-tracking arc: It is apparent the ball is tracking the ball, but it may make mistakes or not infinite loop without clearing some remaining blocks
-            \item Aiming-arc: The network actively moves to and aims the ball to clear all 520 blocks.
+            \item Pre-ball-tracking era: The network does nothing or makes small and arbitrary movements.
+            \item Ball-tracking era: It is apparent the paddle is tracking the ball, but it may make mistakes or infinite loop without clearing some remaining blocks.
+            \item Aiming era: The network actively moves to and aims the ball to clear all 520 blocks.
         \end{enumerate}
 
         \pause{}
@@ -79,7 +79,7 @@
     \begin{frame}
 
         \frametitle{Results}
-         \begin{figure}[h!]
+        \begin{figure}[h!]
             \centering
             \includegraphics[width=.7 \textwidth]{avg_fitness.pdf}
             \caption{\textit{A successful training experiment.} 
@@ -89,18 +89,29 @@
 
     \end{frame}
 
+    \begin{frame}
+        \frametitle{The winning network}
+        The most fit network is extremely simple.
+        It has no hidden nodes and only a few connections.
+        \begin{figure}[h!]
+            \centering
+            \includegraphics[width=1\textwidth]{winner_net_graph_annotated.pdf}
+       \end{figure}
+       This network is far too small to have memorized a sequence of inputs, it's actually tracking the ball.
+    \end{frame}
+
 \section{Discussion}
 
         \begin{frame}
 
         \frametitle{Discussion}
          \begin{itemize}
-             \item Full board information too many inputs for success
-             \item Needed to give histroy of ball location for success
-             \item Needed to train with deterministic initial condition
-             \item Training prone to stagnation in a local maximum fitness
-             \item Success is \emph{very} sensitive to tiny changes in hyperparameters 
-             \item Originally attempted to do Tetris, which was too complicated for NEAT with the current setup
+             \item Full board information too many inputs for success.
+             \item Needed to give histroy of ball location for success.
+             \item Needed to train with deterministic initial condition.
+             \item Training prone to stagnation in a local maximum fitness.
+             \item Success is \emph{very} sensitive to tiny changes in hyperparameters.
+             \item Originally attempted to do Tetris, which was too complicated for NEAT with the current setup.
          \end{itemize}
 
     \end{frame}
@@ -111,11 +122,11 @@
         \begin{itemize}
             \item Change setup:
                 \begin{enumerate}
-                    \item Randomly generate initial board,
-                    \item Make score based on 5 seconds of gameplay instead of full game,
-                    \item Optionally, make score weighted by the amount of time it takes to achieve it to encourage clearing blocks \emph{quickly}
+                    \item Randomly generate initial board.
+                    \item Make score based on 5 seconds of gameplay instead of full game.
+                    \item Optionally, make score weighted by the amount of time it takes to achieve it to encourage clearing blocks \emph{quickly}.
                 \end{enumerate}
-            \item Compare NEAT vs.\ other evolutionary algorithms vs.\ non-evolutionary algorithms like Deep Q-learning
+            \item Compare NEAT vs.\ other evolutionary algorithms vs.\ non-evolutionary algorithms like Deep Q-learning.
         \end{itemize}
 
 
