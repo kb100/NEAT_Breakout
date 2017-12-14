@@ -50,7 +50,7 @@ node_delete_prob        = 0.05
 # network parameters
 num_hidden              = 0
 
-# 529 or 9
+# 18 for blind neural network
 num_inputs              = 18
 
 # LEFT RIGHT ROTATE DOWN

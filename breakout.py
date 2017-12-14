@@ -154,7 +154,11 @@ class Breakout:
 
         # -16 -17 -18
         varInfo += [x/800 for x in self.paddlexHistory]
+
+        #the whole state of the board, which is omitted in the final version
+        #do convolution over blocksMap for non-blind network
         #varInfo += [self.blocksMap[k] for k in self.blocksMapKeys]
+        
         return np.array(varInfo, dtype=np.float64)
 
     def storePressedButtons(self, l, r):
