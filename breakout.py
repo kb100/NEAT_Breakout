@@ -1,5 +1,4 @@
 import pygame
-import sys
 import numpy as np
 import neat
 import random
@@ -16,7 +15,6 @@ class Breakout:
         self.gameLen = 0
         if genome is not None and config is not None:
             self.net = neat.nn.FeedForwardNetwork.create(genome, config)
-            self.netLayersMap = self.getNetLayersMap()
         self.gui = gui
         if self.gui:
             self.screen = pygame.display.set_mode((800, 600))
@@ -204,60 +202,6 @@ class Breakout:
                 self.drawText("L", (400, 550))
             if self.r:
                 self.drawText("R", (430, 550))
-
-    def getNetLayersMap(self):
-        layers = {k:0 for k in self.config.genome_config.input_keys}
-        connections = set()
-        for cg in self.genome.connections.values():
-            if cg.enabled:
-                connections.add(cg.key)
-        n = 0
-        done = False
-        while not done:
-            done = True
-            for a, b in connections:
-                if a in layers and layers[a] == n:
-                    layers[b] = n+1
-                    done = False
-            n += 1
-        return layers
-
-
-    def locationOnScreenOfInput(self, a):
-        # input keys are -1 ,-2 , ..., -529
-        # output keys are 0, 1
-        if a < 0:
-            a = abs(a)
-            if a < 10:
-                return 730, 300 + 30*(a-1)
-            a -= 10
-            x,y = self.blocksMapKeys[a]
-            return x+12, y+5
-        else:
-            x, y = 800, 0
-            numLayers = len(set(self.netLayersMap.values()))
-            dx = 800//numLayers
-            layer = self.netLayersMap[a]
-            sameLayerInputs = sorted([b for b in self.netLayersMap if self.netLayersMap[b]==layer])
-            numInLayer = len(sameLayerInputs)
-            dy = 600//numInLayer
-            i = sameLayerInputs.index(a)
-            return x + dx*(layer-1), y + dy * i
-
-    def drawConnection(self, a,b):
-        start_pos = self.locationOnScreenOfInput(a)
-        end_pos = self.locationOnScreenOfInput(b)
-        pygame.draw.line(self.screen, (255,0,0), start_pos, end_pos)
-
-    def drawNet(self):
-        if self.net is None:
-            return
-        genome = self.genome
-        config = self.config
-        for cg in self.genome.connections.values():
-            if cg.enabled:
-                a,b = cg.key
-                self.drawConnection(a,b)
 
     def play(self):
         if self.gui:
