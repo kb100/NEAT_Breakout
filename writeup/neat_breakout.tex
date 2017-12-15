@@ -1,11 +1,14 @@
-\documentclass[letterpaper, twocolumn, conference]{article}
+\documentclass[letterpaper, twocolumn]{article}
 
 \usepackage{lipsum}
 \usepackage{mathptmx}
+\usepackage[usenames,dvipsnames]{xcolor}
 \usepackage{graphicx}
-\usepackage{url}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usetikzlibrary{arrows.meta}
 
-\author{James~T.~Murphy~III\thanks{\url{jamesmurphy@math.utexas.edu}}\and{}Skyler~Thomas\thanks{\url{skylerthomas0@gmail.com}}}
+\author{James~T.~Murphy~III\thanks{\texttt{jamesmurphy@math.utexas.edu}}\and{}Skyler~Thomas\thanks{\texttt{skylerthomas0@gmail.com}}}
 
 \title{Learning Breakout using NEAT}
 
@@ -69,7 +72,9 @@ The resultant network is typically very small, having 5 or less non-input nodes 
     \includegraphics[width=.54 \textwidth]{avg_fitness.pdf}
     \caption{A successful training experiment. In this case, the pre-ball-tracking era lasts
         until around generation 325, where the network abruptly learns how to track the ball.
-        The ball-tracking era then lasts until around generation 350, where the network learns to avoid missing stray blocks. The aiming era is eached in the last few generations.
+        The ball-tracking era then lasts until around generation 350, where the
+	network learns to avoid missing stray blocks. 
+	The aiming era is reached in the last few generations.
         Generations, each of 200 individuals, took an average time of 2.835 seconds to evaluate running on an
         Intel Core i7-4790K @ 4.00GHz in parallel on 6 cores. The total runtime was around 17.5 minutes.}
 \end{figure}
@@ -97,7 +102,53 @@ On the other hand, training was able to produce an aiming era individual
 when the density of blocks remaining in a few predetermined regions were passed as inputs.
 Training also succeeded when the game state passed to the networks included no information about the remaining blocks whatsoever, i.e.\ a network that saw only the paddle and ball could still achieve a maximum score.
 
+\def\layersep{2.0cm}
+\begin{figure}[h!]
+	\centering
+	\begin{tikzpicture}[shorten >=1pt,->,draw=black!50, node distance=\layersep]
+		\tikzstyle{every pin edge}=[<-,shorten <=1pt]
+		\tikzstyle{neuron}=[circle,fill=black!25,minimum size=17pt,inner
+		sep=0pt, color=darkgray]
+		\tikzstyle{negconn}=[color=BurntOrange]
+		\tikzstyle{posconn}=[color=CornflowerBlue]
+
+		\node[neuron, pin=left:{\small$paddle[3].x(t)$}] (I-2) at (0,-1) {};
+		\node[neuron, pin=left:{\small$paddle[2].x(t-3)$}] (I-4) at (0,-2) {};
+		\node[neuron, pin=left:{\small$paddle[2].x(t-1)$}] (I-5) at (0,-3) {};
+		\node[neuron, pin=left:{\small$paddle[2].x(t)$}] (I-3) at (0,-4) {};
+		\node[neuron, pin=left:{\small$ball.x(t-3)$}] (I-6) at (0,-5) {};
+		\node[neuron, pin=left:{\small$ball.x(t-2)$}] (I-1) at (0,-6) {};
+		\node[neuron, pin=left:{\small$ball.x(t-1)$}] (I-7) at (0,-7) {};
+		\node[neuron, pin=left:{\small$ball.y(t-3)$}] (I-8) at (0,-8) {};
+		\node[neuron, pin=left:{\small$paddle[0].x(t)$}] (I-9) at (0,-9) {};
+
+		\node[neuron,pin={[pin edge={->}]right:L}, right of=I-3] (L) {};
+		\node[neuron,pin={[pin edge={->}]right:R}, right of=I-8] (R) {};
+
+		\draw[negconn, line width=.95mm] (I-1) -- (L);
+		\draw[posconn, line width=.32mm] (I-2) -- (L);
+		\draw[posconn, line width=.42mm] (I-3) -- (L);
+		\draw[posconn, line width=.87mm] (I-4) -- (L);
+		\draw[negconn, line width=.14mm] (I-5) -- (L);
+		\draw[negconn, line width=.78mm] (I-6) -- (L);
+		\draw[posconn, line width=.16mm] (I-7) -- (L);
+
+		\draw[posconn, line width=.37mm] (I-7) -- (R);
+		\draw[posconn, line width=.41mm] (I-8) -- (R);
+		\draw[negconn, line width=.38mm] (I-9) -- (R);
+	\end{tikzpicture}
+	\caption{The most fit genome in one experiment with the network blind
+	to the remaining blocks. Notice how it approximately hits left if the
+	ball is left of the paddle, and it approximately hits right if the
+	ball is right of the paddle. See the methods section for an explanation
+	of the variables.}
+\end{figure}
+
 \section{Methods}
+
+The source code and configuration of our experiments are publicly available
+at~\cite{neatbreakout}.
+
 We modified a Pygame implementation (cf.~\cite{pygame}) of Breakout (cf.~\cite{max00355breakout}) to allow
 human mouse input and human keyboard input (for testing purposes), or automated keyboard input.
 Then we used NEAT-Python (cf.~\cite{neatpython}) to run the NEAT algorithm.
@@ -110,91 +161,22 @@ and taken to indicate whether the left or right arrows are being pressed by the 
 
 The representation of the game state includes the following information:
 \begin{itemize}
-    \item{} the $x$ and $y$ coordinates of the ball, normalized as a percentage of the width of the game
-    \item{} the $x$-direction $\pm1$ and $y$-direction $\pm 1$ of the ball,
-    \item{} the angle of the ball, normalized as a percentage of $2\pi$
-    \item{} the $x$ coordinate of the center of the paddle, normalized as a percentage of the width of the game
+    \item{} $ball.x$, $ball.y$: the $x$ and $y$ coordinates of the ball, normalized as a percentage of the width of the game
+    \item{} $ball.xdir$, $ball.ydir$: the $x$-direction $\pm1$ and $y$-direction $\pm 1$ of the ball,
+    \item{} $ball.angle$: the angle of the ball, normalized as a percentage of $2\pi$
+    \item{} $paddle[0].x$, $paddle[1].x$, $paddle[2].x$, $paddle[3].x$: the $x$
+	    coordinates of the left endpoints of each of the sections of
+		the paddle, normalized as a percentage of the width of the game
     \item{} the history of the previous four up to a fixed number of time steps in the past
     \item{} (potentially) the density of remaining blocks in e.g.\ each of the four block quadrants or similar fixed configuration of predetermined regions of blocks.
 \end{itemize}
 
 After carefully choosing the parameters of the algorithm, a neural network
-it trained to play Breakout using NEAT with the final score of playing a game being the fitness function.
-
-Since the success of the algorithm is so sensitive to the configuration, we reproduce it here:
-\begin{verbatim}
-[NEAT]
-fitness_criterion     = max
-fitness_threshold     = 520
-pop_size              = 200
-reset_on_extinction   = True
-
-[DefaultGenome]
-activation_default      = sigmoid
-activation_mutate_rate  = 0
-activation_options      = sigmoid
-
-aggregation_default     = sum
-aggregation_mutate_rate = 0
-aggregation_options     = sum
-
-bias_init_mean          = 0.0
-bias_init_stdev         = .5
-bias_max_value          = 5
-bias_min_value          = -5
-bias_mutate_power       = .10
-bias_mutate_rate        = 0.05
-bias_replace_rate       = 0.05
-
-compatibility_disjoint_coefficient = 1.0
-compatibility_weight_coefficient   = 0.5
-
-conn_add_prob           = 0.9
-conn_delete_prob        = 0.05
-
-enabled_default         = True
-enabled_mutate_rate     = 0.05
-
-feed_forward            = True
-initial_connection      = unconnected
-
-node_add_prob           = 0.1
-node_delete_prob        = 0.05
-
-num_hidden              = 0
-num_inputs              = 18
-num_outputs             = 2
-
-response_init_mean      = 1.0
-response_init_stdev     = 0.0
-response_max_value      = 30.0
-response_min_value      = -30.0
-response_mutate_power   = 0.0
-response_mutate_rate    = 0.0
-response_replace_rate   = 0.0
-
-weight_init_mean        = 0.0
-weight_init_stdev       = .5
-weight_max_value        = 5
-weight_min_value        = -5
-weight_mutate_power     = 0.125
-weight_mutate_rate      = 0.160
-weight_replace_rate     = 0.1
-
-[DefaultSpeciesSet]
-compatibility_threshold = 3.0
-
-[DefaultStagnation]
-species_fitness_func = max
-max_stagnation       = 200
-species_elitism      = 1
-
-[DefaultReproduction]
-elitism            = 5
-survival_threshold = 0.05
-\end{verbatim}
-
-
+is trained to play Breakout using NEAT with the final score of playing a game
+being the fitness function.
+Success of the training is \emph{very} sensitive to changes in hyperparameters
+of NEAT, so the interested reader should view the sample training configuration
+file in~\cite{neatbreakout}.
 
 \section{Discussions}
 
@@ -232,8 +214,10 @@ choosing a fixed network topology?
     %\newpage
     \section{References}
     \renewcommand{\section}[2]{}
-    %\nocite{*}
+    \nocite{*}
     \bibliographystyle{abbrv}
+    \begin{raggedright}
     \bibliography{master}
+    \end{raggedright}
 \endgroup
 \end{document}
