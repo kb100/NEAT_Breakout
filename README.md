@@ -10,7 +10,9 @@ pip install neat-python
 pip install pygame
 pip install numpy
 
-# now git clone this repo
+git clone "https://github.com/kb100/NEAT_Breakout.git"
+cd NEAT_Breakout
+./demo.sh
 ```
 
 You can play the game with `python3 breakout.py`.
