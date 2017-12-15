@@ -34,45 +34,54 @@ Similarly, YouTuber SethBling demonstrated that a neural network could learn via
 We took inspiration from these projects and have used the same evolutionary algorithm to train a neural network
 to play a version of the Atari game Breakout.
 
-\begin{figure}[h!]
+\begin{figure}[ht!]
     \centering
     \includegraphics[width=.45\textwidth]{breakout.png}
     \caption{The version of Breakout we used.}
 \end{figure}
 
-Breakout is a game by which the user moves a paddle to the left and right a fixed distance
-from the bottom of the screen in an attempt to destroying as many bricks as possible
+Breakout is a game where the user moves a paddle at a fixed distance
+from the bottom of the screen in an attempt to destroy as many blocks as possible
 by bouncing a ball off the paddle.
-For each brick that is hit, a point is awarded.
-This continues until either the player misses the ball or all 520 bricks are hit.
+For each block that is hit, a point is awarded.
+This continues until either the player misses the ball or all 520 blocks are hit.
 
-The evolutionary algorithm we employ is NeuroEvolution of Augmenting Topologies (NEAT).
+The evolutionary algorithm we employ is NeuroEvolution of Augmenting Topologies
+(NEAT)~\cite{stanley2002evolving, stanley2002efficient}.
 NEAT is a type of genetic algorithm that follows biological meta-heuristics.
 In NEAT, neural network nodes and weights are modeled as genes.
 Genomes are randomly mutated by adding/deleting nodes, adding/deleting connections, changing connection weights, etc.
 After mutation, individuals are ranked by their fitness at performing a certain task, in our case playing a game of Breakout.
 The best performing individuals are allowed to mate using a genetic crossover algorithm,
 producing children that compose the next generation of individuals.
-This process is repeated until some fitness threshold is reached, typically that the most fit individual succeeds at a particular task, in our case achieving a maximum score in Breakout.
+Crossover is made possible by keeping track of different species that develop and
+only allowing mating within the same species.
+This process is repeated until some fitness threshold is reached, typically
+that the most fit individual succeeds at a particular task, in our case achieving a maximum score in Breakout.
 
 \section{Results}
-We find there are qualitatively three eras of evolution of the network:
+We find there are qualitatively three eras of evolution of the population of
+networks:
 \begin{enumerate}
-    \item{}\emph{Pre-ball-tracking era}: the network typically does nothing or makes a few small adjustments at the very beginning of the game, scoring a minimal number of points usually $0$ to $30$.
-    \item{}\emph{Ball-tracking era}: the network definitively makes an effort to keep the paddle horizontally aligned with the ball. It clears a sizeable portion of the blocks, and only fails in edge cases or by infinitely looping without clearing some remaining blocks. It typically scores $100$ to $400$ points.
-    \item{}\emph{Aiming era}: the network tracks the ball as before, but also makes sporadic adjustments to aim at remaining blocks. It clears all or nearly all of the blocks, achieving a score from $515$ to the maximum $520$.
+    \item{}\emph{Pre-ball-tracking era}: a network typically does nothing or makes a few small adjustments at the very beginning of the game, scoring a minimal number of points usually $0$ to $30$.
+    \item{}\emph{Ball-tracking era}: a network definitively makes an effort to keep the paddle horizontally aligned with the ball. 
+	    It clears a sizeable portion of the blocks, and only fails in edge cases or by infinitely looping without clearing some remaining blocks. 
+		It typically scores $100$ to $400$ points.
+    \item{}\emph{Aiming era}: a network tracks the ball as before, but also makes sporadic adjustments to aim at remaining blocks. 
+	    It clears all or nearly all of the blocks, achieving a score from
+		$500$ to the maximum $520$.
 \end{enumerate}
 A large percentage of the time, around $90\%$ of attempts, the NEAT algorithm stagnates at a local maximum
 fitness somewhere in the first two eras.
 Simply repeating the experiment a sufficient number of times eventually yields a trained network that
 can achieve the maximum score.
 The resultant network is typically very small, having 5 or less non-input nodes and under 15 total connections.
-\begin{figure}[h!]
+\begin{figure}[ht!]
     \centering
     \includegraphics[width=.54 \textwidth]{avg_fitness.pdf}
     \caption{A successful training experiment. In this case, the pre-ball-tracking era lasts
-        until around generation 325, where the network abruptly learns how to track the ball.
-        The ball-tracking era then lasts until around generation 350, where the
+        until around generation 325, when a network abruptly learns how to track the ball.
+        The ball-tracking era then lasts until around generation 350, when a
 	network learns to avoid missing stray blocks. 
 	The aiming era is reached in the last few generations.
         Generations, each of 200 individuals, took an average time of 2.835 seconds to evaluate running on an
@@ -103,7 +112,7 @@ when the density of blocks remaining in a few predetermined regions were passed 
 Training also succeeded when the game state passed to the networks included no information about the remaining blocks whatsoever, i.e.\ a network that saw only the paddle and ball could still achieve a maximum score.
 
 \def\layersep{2.0cm}
-\begin{figure}[h!]
+\begin{figure}[ht!]
 	\centering
 	\begin{tikzpicture}[shorten >=1pt,->,draw=black!50, node distance=\layersep]
 		\tikzstyle{every pin edge}=[<-,shorten <=1pt]
@@ -161,14 +170,18 @@ and taken to indicate whether the left or right arrows are being pressed by the 
 
 The representation of the game state includes the following information:
 \begin{itemize}
-    \item{} $ball.x$, $ball.y$: the $x$ and $y$ coordinates of the ball, normalized as a percentage of the width of the game
+    \item{} $ball.x$, $ball.y$: the $x$ and $y$ coordinates of the ball,
+	    normalized as a percentage of the width of the game,
     \item{} $ball.xdir$, $ball.ydir$: the $x$-direction $\pm1$ and $y$-direction $\pm 1$ of the ball,
-    \item{} $ball.angle$: the angle of the ball, normalized as a percentage of $2\pi$
+    \item{} $ball.angle$: the angle of the ball, normalized as a percentage of
+	    $2\pi$,
     \item{} $paddle[0].x$, $paddle[1].x$, $paddle[2].x$, $paddle[3].x$: the $x$
 	    coordinates of the left endpoints of each of the sections of
-		the paddle, normalized as a percentage of the width of the game
-    \item{} the history of the previous four up to a fixed number of time steps in the past
-    \item{} (potentially) the density of remaining blocks in e.g.\ each of the four block quadrants or similar fixed configuration of predetermined regions of blocks.
+		the paddle, normalized as a percentage of the width of the
+		game,
+    \item{} the history of the previous four up to a fixed number of time steps
+	    in the past,
+    \item{} (optionally) the density of remaining blocks in e.g.\ each of the four block quadrants or similar fixed configuration of predetermined regions of blocks.
 \end{itemize}
 
 After carefully choosing the parameters of the algorithm, a neural network
@@ -205,10 +218,14 @@ For Tetris, we had no success, but we believe that it may be possible to learn T
 once the suggested changes are made.
 
 Future work could make a direct comparison between the performance of the most fit individual trained by
-NEAT along with several different methods such as Deep Q-learning or other evolutionary algorithms.
+NEAT along with several different methods such as Deep Q-learning or other
+evolutionary algorithms besides NEAT.
 More work is needed to elucidate what aspects of the learning setup are the most important to allow
 long-term strategy to develop. For instance, does evolving the network topology provide any benefit over
 choosing a fixed network topology?
+In conclusion, we consider the experiment a success, but there are
+still many improvements yet to be discovered in order to allow neural networks
+to learn more and more complex games.
 
 \begingroup
     %\newpage
